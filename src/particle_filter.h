@@ -13,7 +13,8 @@
 #include <vector>
 #include "helper_functions.h"
 
-struct Particle {
+struct Particle 
+{
   int id;
   double x;
   double y;
@@ -25,7 +26,8 @@ struct Particle {
 };
 
 
-class ParticleFilter {  
+class ParticleFilter 
+{  
  public:
   // Constructor
   // @param num_particles Number of particles
@@ -98,7 +100,8 @@ class ParticleFilter {
   /**
    * initialized Returns whether particle filter is initialized yet or not.
    */
-  const bool initialized() const {
+  const bool initialized() const 
+  {
     return is_initialized;
   }
 

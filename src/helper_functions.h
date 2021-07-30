@@ -67,8 +67,7 @@ inline double dist(double x1, double y1, double x2, double y2)
  * @param (pf_x, pf_y, pf_theta) x, y and theta of particle filter
  * @output Error between ground truth and particle filter data.
  */
-inline double * getError(double gt_x, double gt_y, double gt_theta, double pf_x,
-                         double pf_y, double pf_theta) 
+inline double * getError(double gt_x, double gt_y, double gt_theta, double pf_x, double pf_y, double pf_theta) 
 {
   static double error[3];
   error[0] = fabs(pf_x - gt_x);
@@ -134,8 +133,7 @@ inline bool read_map_data(std::string filename, Map& map)
  * @param filename Name of file containing control measurements.
  * @output True if opening and reading file was successful
  */
-inline bool read_control_data(std::string filename, 
-                              std::vector<control_s>& position_meas) 
+inline bool read_control_data(std::string filename, std::vector<control_s>& position_meas) 
 {
   // Get file of position measurements
   std::ifstream in_file_pos(filename.c_str(),std::ifstream::in);
@@ -225,8 +223,7 @@ inline bool read_gt_data(std::string filename, std::vector<ground_truth>& gt)
  * @param filename Name of file containing landmark observation measurements.
  * @output True if opening and reading file was successful
  */
-inline bool read_landmark_data(std::string filename, 
-                               std::vector<LandmarkObs>& observations) 
+inline bool read_landmark_data(std::string filename, std::vector<LandmarkObs>& observations) 
 {
   // Get file of landmark measurements
   std::ifstream in_file_obs(filename.c_str(),std::ifstream::in);
