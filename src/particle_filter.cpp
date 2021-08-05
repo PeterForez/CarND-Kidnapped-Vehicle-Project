@@ -58,7 +58,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[])
     particle.theta  = dist_theta(gen);                     // Sample from the normal distribution of theta
     particle.weight = 1;                                   // Initialize all weights to 1
     
-    particles.push_back(P);                                // Vector of all the particles created
+    particles.push_back(particle);                         // Vector of all the particles created
     
     //std::cout << "Sample " << i + 1 << " " << particle.x << " " << particle.y << " " << particle.theta << std::endl;
   }
