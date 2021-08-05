@@ -112,7 +112,7 @@ int main()
           std::istream_iterator<float>(),
           std::back_inserter(y_sense));
 
-          for (int i = 0; i < x_sense.size(); ++i) 
+          for (size_t i = 0; i < x_sense.size(); ++i) //https://stackoverflow.com/questions/31889596/warning-comparison-between-signed-and-unsigned-integer-expressions-how-to-solv
           {
             LandmarkObs obs;
             obs.x = x_sense[i];
