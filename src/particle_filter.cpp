@@ -36,8 +36,8 @@ void ParticleFilter::init(double x, double y, double theta, double std[])
    * @param theta   GPS provided yaw
    * @param std[]   Standard deviation of x, y, theta
    */
-  num_particles    = 100;                                  // Set the number of particles
-  Particle P;
+  num_particles = 100;                                     // Set the number of particles
+  Particle particle;
   std::cout << "num_particles " << num_particles << std::endl;
   
   double std_x     = std[0];                               // Standard deviations for x
@@ -48,22 +48,22 @@ void ParticleFilter::init(double x, double y, double theta, double std[])
   normal_distribution<double> dist_y(y, std_y);            // Create normal distributions for y
   normal_distribution<double> dist_theta(theta, std_theta);// Create normal distributions for theta
   
-  std::default_random_engine gen;
+  std::default_random_engine gen;                          // This is a random number engine class that generates pseudo-random numbers.
   
   for (int i = 0; i < num_particles; ++i) 
   {
-    P.x      = dist_x(gen);                        // Sample from the normal distribution of x
-    P.y      = dist_y(gen);                        // Sample from the normal distribution of y
-    P.theta  = dist_theta(gen);                    // Sample from the normal distribution of theta
-    P.weight = 1;                                  // Initialize all weights to 1
+    particle.id     = i;                                   // Id of the particle in the map.
+    particle.x      = dist_x(gen);                         // Sample from the normal distribution of x
+    particle.y      = dist_y(gen);                         // Sample from the normal distribution of y
+    particle.theta  = dist_theta(gen);                     // Sample from the normal distribution of theta
+    particle.weight = 1;                                   // Initialize all weights to 1
     
-    std::cout << "Sample " << i + 1 << " " << P.x << " " << P.y << " " << P.theta << std::endl;
+    particles.push_back(P);                                // Vector of all the particles created
     
-    particles.push_back(P);
+    //std::cout << "Sample " << i + 1 << " " << particle.x << " " << particle.y << " " << particle.theta << std::endl;
   }
   
   is_initialized = true;
-
   return;
 }
 
@@ -77,21 +77,33 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
    *  http://www.cplusplus.com/reference/random/default_random_engine/
    */
   
-  /* Reference for the equations
-   * https://classroom.udacity.com/nanodegrees/nd013/parts/b9040951-b43f-4dd3-8b16-76e7b52f4d9d/modules/85ece059-1351-4599-bb2c-0095d6534c8c/lessons/e5de5b5a-d706-40ae-902c-ba113b088de7/concepts/ff7658c9-6edd-498b-b066-1578ec3f97aa
-   * https://classroom.udacity.com/nanodegrees/nd013/parts/b9040951-b43f-4dd3-8b16-76e7b52f4d9d/modules/85ece059-1351-4599-bb2c-0095d6534c8c/lessons/e3981fd5-8266-43be-a497-a862af9187d4/concepts/ca98c146-ee0d-4e53-9900-81cec2b771f7
-   */
+  double std_x     = std[0];                               // Standard deviations for x
+  double std_y     = std[1];                               // Standard deviations for y
+  double std_theta = std[2];                               // Standard deviations for theta
   
-  for (int i; i<particles.size(); i++)
+  normal_distribution<double> dist_x(x, std_x);            // Create normal distributions for x
+  normal_distribution<double> dist_y(y, std_y);            // Create normal distributions for y
+  normal_distribution<double> dist_theta(theta, std_theta);// Create normal distributions for theta
+  
+  std::default_random_engine gen;                          // This is a random number engine class that generates pseudo-random numbers.
+    
+  for (int i; i < particles.size(); i++)
   {
-    if(yaw_rate > 0.0001) //when the yaw rate is not equal to zero
+    if(fabs(yaw_rate) > 0.0001)                            // Absolute yaw rate is not equal to zero
     {
-      
+      particles[i].x     += velocity / yaw_rate * [sin(particles[i].theta + yaw_rate * delta_t) - sin(particles[i].theta)];
+      particles[i].y     += velocity / yaw_rate * [cos(particles[i].theta) - cos(particles[i].theta + yaw_rate * delta_t)];
+      particles[i].theta += yaw_rate * delta_t;
     }
-    else
+    else                                                   // Yaw rate is equal to zero
     {
-      
+      particles[i].x     += velocity * delta_t * cos(particles[i].theta);
+      particles[i].y     += velocity * delta_t * sin(particles[i].theta);
     }
+    // Adding Noise
+    particles[i].x       += dist_x(gen);                   // Sample from the normal distribution of x
+    particles[i].y       += dist_y(gen);                   // Sample from the normal distribution of y
+    particles[i].theta   += dist_theta(gen);               // Sample from the normal distribution of theta
   }
 }
 
@@ -106,7 +118,23 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted,
    *   probably find it useful to implement this method and use it as a helper 
    *   during the updateWeights phase.
    */
-
+   
+  //https://knowledge.udacity.com/questions/516274 
+  for (unsigned int i; i < observations.size(); i++)                                         // Loop over the Observations
+  {                                                                                          
+    double min_distance = numeric_limits<double>::max();                                     // Initialize with the maximum value of double
+    for (unsigned int j; j < predicted.size(); j++)                                          // Loop over the Predictions    
+    {                                                                                        
+      double distance;                                                                       
+      distance = dist(observations[i].x, observations[i].y, predicted[j].x, predicted[j].y); // Function in "helper_functions.h"
+      observations[i].id = -1;                                                               // Initialize the observation id
+      if (distance < min_distance)                                                           // Check the minimum distance
+      {                                                                                      
+        min_distance = distance;                                                             
+        observations[i].id = predicted[j].id;                                                // Associating the observation to landmark id
+      }
+    }
+  }
 }
 
 void ParticleFilter::updateWeights(double sensor_range, double std_landmark[], 
@@ -126,7 +154,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
    *   and the following is a good resource for the actual equation to implement
    *   (look at equation 3.33) http://planning.cs.uiuc.edu/node99.html
    */
-
+  
+  
 }
 
 void ParticleFilter::resample() 
