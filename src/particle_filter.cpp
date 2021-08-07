@@ -185,6 +185,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
                      
   double x_part;     // The x coordinate for the particle
   double y_part;     // The y coordinate for the particle
+  double theta;      // The theta orientation of the particle
                      
   double x_map;      // The x transform to map coordinate for the landmark observation
   double y_map;      // The y transform to map coordinate for the landmark observation
@@ -201,14 +202,12 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
   double sig_y = std_landmark[1];
   
   double distance;  
-  
-
-  
 
   for (size_t i = 0; i < particles.size(); i++)
   {
     x_part = particles[i].x;
     y_part = particles[i].y;
+    theta  = particles[i].theta; 
     
     // Find Landmarks within the sensor range of the particle
     vector<LandmarkObs> landmarks_sensor_range;
@@ -293,7 +292,7 @@ void ParticleFilter::resample()
   vector<double> weights;
   for (size_t i = 0; i < particles.size(); i++)
   {
-    weights.push_back(particles[i].weight/weight_max)
+    weights.push_back(particles[i].weight/weight_max);
   }
   
   std::discrete_distribution<> weight_dist(weights.begin(), weights.end());
