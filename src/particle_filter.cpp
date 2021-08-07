@@ -37,8 +37,10 @@ void ParticleFilter::init(double x, double y, double theta, double std[])
    * @param theta   GPS provided yaw
    * @param std[]   Standard deviation of x, y, theta
    */
+  
+  std::cout << "Step: ParticleFilter::init " << std::endl;
+  
   num_particles = 100;                                     // Set the number of particles
-  Particle particle;
   std::cout << "num_particles " << num_particles << std::endl;
   
   double std_x     = std[0];                               // Standard deviations for x
@@ -50,7 +52,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[])
   normal_distribution<double> dist_theta(theta, std_theta);// Create normal distributions for theta
   
   std::default_random_engine gen;                          // This is a random number engine class that generates pseudo-random numbers.
-  
+  Particle particle;
   for (int i = 0; i < num_particles; ++i) 
   {
     particle.id     = i;                                   // Id of the particle in the map.
@@ -64,7 +66,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[])
     //std::cout << "Sample " << i + 1 << " " << particle.x << " " << particle.y << " " << particle.theta << std::endl;
   }
   
-  is_initialized = true;
+  is_initialized = true;                                   // Flag to indicate that the step of initialization is finished
   return;
 }
 
@@ -77,6 +79,8 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
    *  http://en.cppreference.com/w/cpp/numeric/random/normal_distribution
    *  http://www.cplusplus.com/reference/random/default_random_engine/
    */
+  
+  std::cout << "Step: ParticleFilter::prediction " << std::endl;
   
   double std_x     = std_pos[0];                           // Standard deviations for x
   double std_y     = std_pos[1];                           // Standard deviations for y
@@ -92,8 +96,8 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
   {
     if(fabs(yaw_rate) > 0.0001)                            // Absolute yaw rate is not equal to zero
     {
-      particles[i].x     += velocity / yaw_rate * (sin(particles[i].theta + yaw_rate * delta_t) - sin(particles[i].theta));
-      particles[i].y     += velocity / yaw_rate * (cos(particles[i].theta) - cos(particles[i].theta + yaw_rate * delta_t));
+      particles[i].x     += (velocity / yaw_rate) * (sin(particles[i].theta + yaw_rate * delta_t) - sin(particles[i].theta));
+      particles[i].y     += (velocity / yaw_rate) * (cos(particles[i].theta) - cos(particles[i].theta + yaw_rate * delta_t));
       particles[i].theta += yaw_rate * delta_t;
     }
     else                                                   // Yaw rate is equal to zero
@@ -120,6 +124,9 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted, vector<Landm
    */
    
   //https://knowledge.udacity.com/questions/516274 
+  
+  std::cout << "Step: ParticleFilter::dataAssociation " << std::endl;
+  
   for (size_t i = 0; i < observations.size(); i++)                                           // Loop over the Observations
   {                                                                                          
     double min_distance = numeric_limits<double>::max();                                     // Initialize with the maximum value of double
@@ -180,6 +187,9 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
    *   and the following is a good resource for the actual equation to implement
    *   (look at equation 3.33) http://planning.cs.uiuc.edu/node99.html
    */
+   
+  std::cout << "Step: ParticleFilter::updateWeights " << std::endl;
+  
   double x_obs;      // The x coordinate for the landmark observation
   double y_obs;      // The y coordinate for the landmark observation
                      
@@ -218,9 +228,9 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       y_landmark = map_landmarks.landmark_list[j].y_f; 
       
       distance   = dist(x_part, x_landmark, y_part, y_landmark);
-      if (distance <= sensor_range)
+      if (distance <= sensor_range) // Landmark within the sensor range
       {
-        landmarks_sensor_range.push_back(LandmarkObs{id, x_landmark, y_landmark}); 
+        landmarks_sensor_range.push_back(LandmarkObs{id, x_landmark, y_landmark}); // Prediction
       }
     }
     
@@ -241,19 +251,19 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
     dataAssociation(landmarks_sensor_range, transformed_observations);
     
     // Update the Weight with multivaraiate gaussian distribution
-    particles[i].weight = 1; // Initialize the Weights
+    particles[i].weight = 1.0; // Initialize the Weights to one
     for (size_t j = 0; j < transformed_observations.size(); j++)
     {
       x_obs = transformed_observations[j].x;
       y_obs = transformed_observations[j].y;
-      
-      id = transformed_observations[j].id;
+      id    = transformed_observations[j].id;
       for (size_t k = 0; k < landmarks_sensor_range.size(); k++) 
       {
         if (landmarks_sensor_range[k].id == id) 
         {
           mu_x = landmarks_sensor_range[k].x;
           mu_y = landmarks_sensor_range[k].y;
+          break;
         }
       }
       particles[i].weight *= multiv_prob(sig_x, sig_y, x_obs, y_obs, mu_x, mu_y);
@@ -273,6 +283,8 @@ void ParticleFilter::resample()
    */
    
   // https://knowledge.udacity.com/questions/240067
+  
+  std::cout << "Step: ParticleFilter::resample " << std::endl;
   
   // Maximum and Total Weight
   double weight_max = numeric_limits<double>::min(); 
@@ -306,6 +318,7 @@ void ParticleFilter::resample()
   }
   particles = particles_sampled;
   //std::cout << "resample: num_particles " << particles.size() << std::endl;
+  std::cout << "resample: weight_max " << weight_max << std::endl;
 }
 
 void ParticleFilter::SetAssociations(Particle& particle, 
