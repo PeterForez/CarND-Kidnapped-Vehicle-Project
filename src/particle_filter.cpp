@@ -285,14 +285,14 @@ void ParticleFilter::resample()
       weight_max = particles[i].weight;
     }
   }
+  
   std::random_device rd;
   std::mt19937 gen(rd());
-  
   
   vector<double> weights;
   for (size_t i = 0; i < particles.size(); i++)
   {
-    weights.push_back(particles[i].weight/weight_max);
+    weights.push_back(particles[i].weight/weight_total);
   }
   
   std::discrete_distribution<> weight_dist(weights.begin(), weights.end());
@@ -305,6 +305,7 @@ void ParticleFilter::resample()
       particles_sampled.push_back(particles[index]);
   }
   particles = particles_sampled;
+  //std::cout << "resample: num_particles " << particles.size() << std::endl;
 }
 
 void ParticleFilter::SetAssociations(Particle& particle, 
