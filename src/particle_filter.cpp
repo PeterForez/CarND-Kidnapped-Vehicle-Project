@@ -21,6 +21,7 @@
 using std::string;
 using std::vector;
 using std::normal_distribution;
+using std::numeric_limits;
 
 void ParticleFilter::init(double x, double y, double theta, double std[]) 
 {
