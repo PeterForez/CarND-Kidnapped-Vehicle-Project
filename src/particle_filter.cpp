@@ -77,13 +77,13 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
    *  http://www.cplusplus.com/reference/random/default_random_engine/
    */
   
-  double std_x     = std[0];                               // Standard deviations for x
-  double std_y     = std[1];                               // Standard deviations for y
-  double std_theta = std[2];                               // Standard deviations for theta
+  double std_x     = std_pos[0];                           // Standard deviations for x
+  double std_y     = std_pos[1];                           // Standard deviations for y
+  double std_theta = std_pos[2];                           // Standard deviations for theta
   
-  normal_distribution<double> dist_x(x, std_x);            // Create normal distributions for x
-  normal_distribution<double> dist_y(y, std_y);            // Create normal distributions for y
-  normal_distribution<double> dist_theta(theta, std_theta);// Create normal distributions for theta
+  normal_distribution<double> dist_x(0, std_x);            // Create normal distributions for x with zero mean
+  normal_distribution<double> dist_y(0, std_y);            // Create normal distributions for y with zero mean
+  normal_distribution<double> dist_theta(0, std_theta);    // Create normal distributions for theta with zero mean
   
   std::default_random_engine gen;                          // This is a random number engine class that generates pseudo-random numbers.
     
