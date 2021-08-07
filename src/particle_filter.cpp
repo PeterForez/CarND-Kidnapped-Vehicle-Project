@@ -36,7 +36,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[])
    * @param std[]   Standard deviation of x, y, theta
    */
   
-  std::cout << "Step: ParticleFilter::init " << std::endl;
+  //std::cout << "Step: ParticleFilter::init " << std::endl;
   
   num_particles = 100;                                     // Set the number of particles
   std::cout << "num_particles " << num_particles << std::endl;
@@ -78,7 +78,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
    *  http://www.cplusplus.com/reference/random/default_random_engine/
    */
   
-  std::cout << "Step: ParticleFilter::prediction " << std::endl;
+  //std::cout << "Step: ParticleFilter::prediction " << std::endl;
   
   double std_x     = std_pos[0];                           // Standard deviations for x
   double std_y     = std_pos[1];                           // Standard deviations for y
@@ -123,7 +123,7 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted, vector<Landm
    
   //https://knowledge.udacity.com/questions/516274 
   
-  std::cout << "Step: ParticleFilter::dataAssociation " << std::endl;
+  //std::cout << "Step: ParticleFilter::dataAssociation " << std::endl;
   
   for (size_t i = 0; i < observations.size(); i++)                                           // Loop over the Observations
   {                                                                                          
@@ -186,7 +186,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
    *   (look at equation 3.33) http://planning.cs.uiuc.edu/node99.html
    */
    
-  std::cout << "Step: ParticleFilter::updateWeights " << std::endl;
+  //std::cout << "Step: ParticleFilter::updateWeights " << std::endl;
   
   double x_obs;      // The x coordinate for the landmark observation
   double y_obs;      // The y coordinate for the landmark observation
@@ -282,7 +282,7 @@ void ParticleFilter::resample()
    
   // https://knowledge.udacity.com/questions/240067
   
-  std::cout << "Step: ParticleFilter::resample " << std::endl;
+  //std::cout << "Step: ParticleFilter::resample " << std::endl;
   
   // Maximum and Total Weight
   double weight_max = std::numeric_limits<double>::min(); 
@@ -298,7 +298,6 @@ void ParticleFilter::resample()
     }
   }
   
-  int N = particles.size();
   int index;
   vector<Particle> particles_sampled;
  
@@ -313,9 +312,7 @@ void ParticleFilter::resample()
   }
   particles = particles_sampled;
   //std::cout << "resample: num_particles " << particles.size() << std::endl;
-  //std::cout << "resample: weight_max " << weight_max << std::endl;
-  particles = particles_sampled;
-  
+  //std::cout << "resample: weight_max " << weight_max << std::endl;  
 }
 
 void ParticleFilter::SetAssociations(Particle& particle, 
