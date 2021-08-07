@@ -20,8 +20,6 @@
 
 using std::string;
 using std::vector;
-using std::normal_distribution;
-using std::numeric_limits;
 
 void ParticleFilter::init(double x, double y, double theta, double std[]) 
 {
@@ -47,9 +45,9 @@ void ParticleFilter::init(double x, double y, double theta, double std[])
   double std_y     = std[1];                               // Standard deviations for y
   double std_theta = std[2];                               // Standard deviations for theta
 
-  normal_distribution<double> dist_x(x, std_x);            // Create normal distributions for x
-  normal_distribution<double> dist_y(y, std_y);            // Create normal distributions for y
-  normal_distribution<double> dist_theta(theta, std_theta);// Create normal distributions for theta
+  std::normal_distribution<double> dist_x(x, std_x);            // Create normal distributions for x
+  std::normal_distribution<double> dist_y(y, std_y);            // Create normal distributions for y
+  std::normal_distribution<double> dist_theta(theta, std_theta);// Create normal distributions for theta
   
   std::default_random_engine gen;                          // This is a random number engine class that generates pseudo-random numbers.
   Particle particle;
@@ -86,9 +84,9 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
   double std_y     = std_pos[1];                           // Standard deviations for y
   double std_theta = std_pos[2];                           // Standard deviations for theta
   
-  normal_distribution<double> dist_x(0, std_x);            // Create normal distributions for x with zero mean
-  normal_distribution<double> dist_y(0, std_y);            // Create normal distributions for y with zero mean
-  normal_distribution<double> dist_theta(0, std_theta);    // Create normal distributions for theta with zero mean
+  std::normal_distribution<double> dist_x(0, std_x);            // Create normal distributions for x with zero mean
+  std::normal_distribution<double> dist_y(0, std_y);            // Create normal distributions for y with zero mean
+  std::normal_distribution<double> dist_theta(0, std_theta);    // Create normal distributions for theta with zero mean
   
   std::default_random_engine gen;                          // This is a random number engine class that generates pseudo-random numbers.
     
@@ -129,7 +127,7 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted, vector<Landm
   
   for (size_t i = 0; i < observations.size(); i++)                                           // Loop over the Observations
   {                                                                                          
-    double min_distance = numeric_limits<double>::max();                                     // Initialize with the maximum value of double
+    double min_distance = std::numeric_limits<double>::max();                                     // Initialize with the maximum value of double
     for (size_t j = 0; j < predicted.size(); j++)                                            // Loop over the Predictions    
     {                                                                                        
       double distance;                                                                       
@@ -287,10 +285,12 @@ void ParticleFilter::resample()
   std::cout << "Step: ParticleFilter::resample " << std::endl;
   
   // Maximum and Total Weight
-  double weight_max = numeric_limits<double>::min(); 
+  double weight_max = std::numeric_limits<double>::min(); 
   double weight_total = 0; 
+  vector<double> weights;
   for (size_t i = 0; i < particles.size(); i++)
   {
+    weights.push_back(particles[i].weight);
     weight_total += particles[i].weight;
     if(weight_max < particles[i].weight)
     {
@@ -298,19 +298,14 @@ void ParticleFilter::resample()
     }
   }
   
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  
-  vector<double> weights;
-  for (size_t i = 0; i < particles.size(); i++)
-  {
-    weights.push_back(particles[i].weight/weight_total);
-  }
-  
-  std::discrete_distribution<> weight_dist(weights.begin(), weights.end());
-  
-  vector<Particle> particles_sampled;
+  int N = particles.size();
   int index;
+  vector<Particle> particles_sampled;
+ 
+  std::random_device rd;  //Will be used to obtain a seed for the random number engine
+  std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+  std::discrete_distribution<int> weight_dist(weights.begin(), weights.end());
+  
   for (size_t i = 0; i < particles.size(); i++)
   {
       index = weight_dist(gen);
@@ -318,7 +313,9 @@ void ParticleFilter::resample()
   }
   particles = particles_sampled;
   //std::cout << "resample: num_particles " << particles.size() << std::endl;
-  std::cout << "resample: weight_max " << weight_max << std::endl;
+  //std::cout << "resample: weight_max " << weight_max << std::endl;
+  particles = particles_sampled;
+  
 }
 
 void ParticleFilter::SetAssociations(Particle& particle, 
