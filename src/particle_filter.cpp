@@ -192,6 +192,9 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
   float x_landmark;  // Landmark x-position in the map (global coordinates)
   float y_landmark;  // Landmark y-position in the map (global coordinates)
   
+  double mu_x;
+  double mu_y;
+  
   int   id ;         // Landmark or Observation ID
   
   double sig_x = std_landmark[0];
@@ -199,8 +202,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
   
   double distance;  
   
-  double weight_max = numeric_limits<double>::min(); 
-  double weight_total = 0;
+
   
 
   for (size_t i = 0; i < particles.size(); i++)
@@ -247,7 +249,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       y_obs = transformed_observations[j].y;
       
       id = transformed_observations[j].id;
-      for (size_t k = 0; l < final_pred.size(); k++) 
+      for (size_t k = 0; k < landmarks_sensor_range.size(); k++) 
       {
         if (landmarks_sensor_range[k].id == id) 
         {
@@ -258,12 +260,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       particles[i].weight *= multiv_prob(sig_x, sig_y, x_obs, y_obs, mu_x, mu_y);
     }
     
-    // Maximum and Total Weight
-    weight_total += particles[i].weight;
-    if(weight_max < particles[i].weight)
-    {
-      weight_max = particles[i].weight;
-    }
+    
   }
 }
 
@@ -277,8 +274,21 @@ void ParticleFilter::resample()
    */
    
   // https://knowledge.udacity.com/questions/240067
+  
+  // Maximum and Total Weight
+  double weight_max = numeric_limits<double>::min(); 
+  double weight_total = 0; 
+  for (size_t i = 0; i < particles.size(); i++)
+  {
+    weight_total += particles[i].weight;
+    if(weight_max < particles[i].weight)
+    {
+      weight_max = particles[i].weight;
+    }
+  }
   std::random_device rd;
   std::mt19937 gen(rd());
+  
   
   vector<double> weights;
   for (size_t i = 0; i < particles.size(); i++)
