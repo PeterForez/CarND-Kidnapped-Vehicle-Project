@@ -312,15 +312,19 @@ void ParticleFilter::resample()
   double beta = 0.0;
   double mw = weight_max;
   
+  
   for (int i = 0; i < N; i++)
   {
     beta += beta_dist(gen) * 2.0 * mw;
-      while (beta > weights[index])
-      {
-        beta -= weights[index];
-        index = (index + 1) % N;
-      }
-      particles_sampled.push_back(particles[index]);
+    int counter = 0;
+    while (beta > weights[index])
+    {
+      counter += 1;
+      std::cout << "counter" << counter << std::endl;
+      beta -= weights[index];
+      index = (index + 1) % N;
+    }
+    particles_sampled.push_back(particles[index]);
   } 
 }
 
