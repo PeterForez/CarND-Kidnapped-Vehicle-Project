@@ -298,21 +298,30 @@ void ParticleFilter::resample()
     }
   }
   
-  int index;
+  
   vector<Particle> particles_sampled;
- 
+  int N = particles.size();
+  
   std::random_device rd;  //Will be used to obtain a seed for the random number engine
   std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-  std::discrete_distribution<int> weight_dist(weights.begin(), weights.end());
   
-  for (size_t i = 0; i < particles.size(); i++)
+  std::uniform_int_distribution<int>     index_dist(1,N-1);
+  std::uniform_real_distribution<double> beta_dist(0.0, 1);
+  
+  int    index = index_dist(gen);
+  double beta = 0.0;
+  double mw = weight_max;
+  
+  for (int i = 0; i < N; i++)
   {
-      index = weight_dist(gen);
+    beta += beta_dist(eng) * 2.0 * mw
+      while (beta > weights[index])
+      {
+        beta -= weights[index];
+        index = (index + 1) % N;
+      }
       particles_sampled.push_back(particles[index]);
-  }
-  particles = particles_sampled;
-  //std::cout << "resample: num_particles " << particles.size() << std::endl;
-  //std::cout << "resample: weight_max " << weight_max << std::endl;  
+  } 
 }
 
 void ParticleFilter::SetAssociations(Particle& particle, 
