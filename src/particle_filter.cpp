@@ -314,7 +314,7 @@ void ParticleFilter::resample()
   
   for (int i = 0; i < N; i++)
   {
-    beta += beta_dist(gen) * 2.0 * mw
+    beta += beta_dist(gen) * 2.0 * mw;
       while (beta > weights[index])
       {
         beta -= weights[index];
