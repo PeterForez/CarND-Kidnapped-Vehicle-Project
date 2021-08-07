@@ -92,8 +92,8 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
   {
     if(fabs(yaw_rate) > 0.0001)                            // Absolute yaw rate is not equal to zero
     {
-      //particles[i].x     += velocity / yaw_rate * [sin(particles[i].theta + yaw_rate * delta_t) - sin(particles[i].theta)];
-      //particles[i].y     += velocity / yaw_rate * [cos(particles[i].theta) - cos(particles[i].theta + yaw_rate * delta_t)];
+      particles[i].x     += velocity / yaw_rate * [sin(particles[i].theta + yaw_rate * delta_t) - sin(particles[i].theta)];
+      particles[i].y     += velocity / yaw_rate * [cos(particles[i].theta) - cos(particles[i].theta + yaw_rate * delta_t)];
       particles[i].theta += yaw_rate * delta_t;
     }
     else                                                   // Yaw rate is equal to zero
