@@ -153,7 +153,7 @@ double multiv_prob(double sig_x, double sig_y,
   // calculate exponent
   double exponent;
   exponent = (pow(x_obs - mu_x, 2) / (2 * pow(sig_x, 2)))
-               + (pow(y_obs - mu_y, 2) / (2 * pow(sig_y, 2)));
+           + (pow(y_obs - mu_y, 2) / (2 * pow(sig_y, 2)));
     
   // calculate weight using normalization terms and exponent
   double weight;
@@ -197,6 +197,10 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
   double sig_y = std_landmark[1];
   
   double distance;  
+  
+  double weight_max = numeric_limits<double>::min(); 
+  double weight_total = 0;
+  
 
   for (size_t i = 0; i < particles.size(); i++)
   {
@@ -234,7 +238,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
     // Find the predicted measurement that is closest to each observed measurement and assign the observed measurement to this particular landmark.
     dataAssociation(landmarks_sensor_range, transformed_observations);
     
-    // Update the Weight 
+    // Update the Weight with multivaraiate gaussian distribution
     particles[i].weight = 1; // Initialize the Weights
     for (size_t j = 0; j < transformed_observations.size(); j++)
     {
@@ -252,6 +256,13 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       }
       particles[i].weight *= multiv_prob(sig_x, sig_y, x_obs, y_obs, mu_x, mu_y);
     }
+    
+    // Maximum and Total Weight
+    weight_total += particles[i].weight;
+    if(weight_max < particles[i].weight)
+    {
+      weight_max = particles[i].weight;
+    }
   }
 }
 
@@ -263,7 +274,27 @@ void ParticleFilter::resample()
    * NOTE: You may find std::discrete_distribution helpful here.
    *   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
    */
-
+   
+  // https://knowledge.udacity.com/questions/240067
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  
+  vector<double> weights;
+  for (size_t i = 0; i < particles.size(); i++)
+  {
+    weights.push_back(particles[i].weight/weight_max)
+  }
+  
+  std::discrete_distribution<> weight_dist(weights.begin(), weights.end());
+  
+  vector<Particle> particles_sampled;
+  int index;
+  for (size_t i = 0; i < particles.size(); i++)
+  {
+      index = weight_dist(gen);
+      particles_sampled.push_back(particles[index]);
+  }
+  particles = particles_sampled;
 }
 
 void ParticleFilter::SetAssociations(Particle& particle, 
