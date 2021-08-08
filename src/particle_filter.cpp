@@ -305,16 +305,14 @@ void ParticleFilter::resample()
   std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
   
   std::uniform_int_distribution<int>     index_dist(0,N-1);
-  std::uniform_real_distribution<double> beta_dist(0.0, 1);
+  std::uniform_real_distribution<double> beta_dist(0.0, weight_max);
   
   int    index = index_dist(gen);
-  double beta = 0.0;
-  double mw = weight_max;
-  
+  double beta = 0.0;  
   
   for (int i = 0; i < N; i++)
   {
-    beta += beta_dist(gen) * 2.0 * mw;
+    beta += beta_dist(gen) * 2.0 ;
     int counter = 0;
     while (beta > weights[index])
     {
