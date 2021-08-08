@@ -326,6 +326,7 @@ void ParticleFilter::resample()
     }
     particles_sampled.push_back(particles[index]);
   } 
+  particles = particles_sampled;
 }
 
 void ParticleFilter::SetAssociations(Particle& particle, 
