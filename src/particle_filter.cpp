@@ -300,7 +300,7 @@ void ParticleFilter::resample()
      */
   }
   
-  double weight_max = *max_element(weights.begin(), weights.end());
+  weight_max = *max_element(weights.begin(), weights.end());
   
   std::cout << "weight_max " << weight_max << std::endl;
   
