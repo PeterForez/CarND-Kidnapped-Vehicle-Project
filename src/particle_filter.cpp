@@ -297,6 +297,7 @@ void ParticleFilter::resample()
       weight_max = particles[i].weight;
     }
   }
+  std::cout << "weight_max " << weight_max << std::endl;
   
   vector<Particle> particles_sampled;
   int N = particles.size();
@@ -313,11 +314,8 @@ void ParticleFilter::resample()
   for (int i = 0; i < N; i++)
   {
     beta += beta_dist(gen) * 2.0 ;
-    int counter = 0;
     while (beta > weights[index])
     {
-      counter += 1;
-      std::cout << "counter, beta" << counter << beta << std::endl;
       beta -= weights[index];
       index = (index + 1) % N;
     }
