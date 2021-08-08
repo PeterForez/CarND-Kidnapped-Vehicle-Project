@@ -292,11 +292,16 @@ void ParticleFilter::resample()
   {
     weights.push_back(particles[i].weight);
     weight_total += particles[i].weight;
+    /* 
     if(weight_max < particles[i].weight)
     {
       weight_max = particles[i].weight;
     }
+     */
   }
+  
+  double weight_max = *max_element(weights.begin(), weights.end());
+  
   std::cout << "weight_max " << weight_max << std::endl;
   
   vector<Particle> particles_sampled;
