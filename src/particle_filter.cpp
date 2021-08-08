@@ -298,7 +298,6 @@ void ParticleFilter::resample()
     }
   }
   
-  
   vector<Particle> particles_sampled;
   int N = particles.size();
   
@@ -320,7 +319,7 @@ void ParticleFilter::resample()
     while (beta > weights[index])
     {
       counter += 1;
-      std::cout << "counter" << counter << std::endl;
+      std::cout << "counter, beta" << counter << beta << std::endl;
       beta -= weights[index];
       index = (index + 1) % N;
     }
