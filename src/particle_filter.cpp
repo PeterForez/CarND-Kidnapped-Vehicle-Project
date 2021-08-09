@@ -22,7 +22,7 @@ using std::string;
 using std::vector;
 
 std::default_random_engine gen;                               // This is a random number engine class that generates pseudo-random numbers.
-#define EPS 0.000001
+#define EPS 0.00001
 
 void ParticleFilter::init(double x, double y, double theta, double std[]) 
 {
@@ -46,7 +46,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[])
     return;
   }
   
-  num_particles = 500;                                          // Set the number of particles
+  num_particles = 100;                                          // Set the number of particles
   std::cout << "num_particles " << num_particles << std::endl;
   
   double std_x     = std[0];                                    // Standard deviations for x
@@ -68,7 +68,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[])
  
     particles.push_back(particle);                              // Vector of all the particles created
     
-    std::cout << "Sample " << i + 1 << " " << particle.x << " " << particle.y << " " << particle.theta << std::endl;
+    //std::cout << "Sample " << i + 1 << " " << particle.x << " " << particle.y << " " << particle.theta << std::endl;
   }
   
   is_initialized = true;                                        // Flag to indicate that the step of initialization is finished
@@ -273,13 +273,17 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
           break;
         }
       }
-      particles[i].weight *= multiv_prob(sig_x, sig_y, x_obs, y_obs, mu_x, mu_y);
+      double w = multiv_prob(sig_x, sig_y, x_obs, y_obs, mu_x, mu_y);
+      
+      if (w == 0)  //Prevent dividing by zero
+      {
+        particles[i].weight *= EPS;
+      }
+      else
+      {
+        particles[i].weight *= w;
+      }
     }  
-    
-    if (particles[i].weight < EPS)  //Prevent dividing by zero
-    {
-      particles[i].weight = EPS;
-    }
     weight_total += particles[i].weight;
   }
   /*
@@ -316,7 +320,6 @@ void ParticleFilter::resample()
   
   //std::cout << "Step: ParticleFilter::resample " << std::endl;
   
-  #if 0
   vector<double> weights;
   for (size_t i = 0; i < particles.size(); i++)
   {
@@ -331,14 +334,14 @@ void ParticleFilter::resample()
   int N = particles.size();
   
   std::uniform_int_distribution<int>     index_dist(0,N-1);
-  std::uniform_real_distribution<double> beta_dist(0.0, 2.0 * weight_max);
+  std::uniform_real_distribution<double> beta_dist(0.0, weight_max);
   
   int    index = index_dist(gen);
   double beta = 0.0;  
   
   for (int i = 0; i < N; i++)
   {
-    beta += beta_dist(gen);
+    beta += beta_dist(gen) * 2.0;
     while (beta > weights[index])
     {
       beta -= weights[index];
@@ -349,24 +352,22 @@ void ParticleFilter::resample()
   particles = particles_sampled;
   
   
-  #else
-  vector<double> weights;
-  for (size_t i = 0; i < particles.size(); i++)
-  {
-    weights.push_back(particles[i].weight);
-  }
-  
-  std::discrete_distribution<> index_dist(weights.begin(), weights.end());
-  
-  vector<Particle> particles_sampled;
-  int index;
-  for (size_t i = 0; i < particles.size(); i++)
-  {
-    index = index_dist(gen);
-    particles_sampled.push_back(particles[index]);
-  } 
-  particles = particles_sampled;
-  #endif
+  //vector<double> weights;
+  //for (size_t i = 0; i < particles.size(); i++)
+  //{
+  //  weights.push_back(particles[i].weight);
+  //}
+  //
+  //std::discrete_distribution<> index_dist(weights.begin(), weights.end());
+  //
+  //vector<Particle> particles_sampled;
+  //int index;
+  //for (size_t i = 0; i < particles.size(); i++)
+  //{
+  //  index = index_dist(gen);
+  //  particles_sampled.push_back(particles[index]);
+  //} 
+  //particles = particles_sampled;
 }
 
 void ParticleFilter::SetAssociations(Particle& particle, 
