@@ -43,33 +43,33 @@ void ParticleFilter::init(double x, double y, double theta, double std[])
     return;
   }
   
-  num_particles = 100;                                     // Set the number of particles
+  num_particles = 100;                                          // Set the number of particles
   std::cout << "num_particles " << num_particles << std::endl;
   
-  double std_x     = std[0];                               // Standard deviations for x
-  double std_y     = std[1];                               // Standard deviations for y
-  double std_theta = std[2];                               // Standard deviations for theta
+  double std_x     = std[0];                                    // Standard deviations for x
+  double std_y     = std[1];                                    // Standard deviations for y
+  double std_theta = std[2];                                    // Standard deviations for theta
 
   std::normal_distribution<double> dist_x(x, std_x);            // Create normal distributions for x
   std::normal_distribution<double> dist_y(y, std_y);            // Create normal distributions for y
   std::normal_distribution<double> dist_theta(theta, std_theta);// Create normal distributions for theta
   
-  std::default_random_engine gen;                          // This is a random number engine class that generates pseudo-random numbers.
+  std::default_random_engine gen;                               // This is a random number engine class that generates pseudo-random numbers.
   Particle particle;
   for (int i = 0; i < num_particles; ++i) 
   {
-    particle.id     = i;                                   // Id of the particle in the map.
-    particle.x      = dist_x(gen);                         // Sample from the normal distribution of x
-    particle.y      = dist_y(gen);                         // Sample from the normal distribution of y
-    particle.theta  = dist_theta(gen);                     // Sample from the normal distribution of theta
-    particle.weight = 1;                                   // Initialize all weights to 1
-    
-    particles.push_back(particle);                         // Vector of all the particles created
+    particle.id     = i;                                        // Id of the particle in the map.
+    particle.x      = dist_x(gen);                              // Sample from the normal distribution of x
+    particle.y      = dist_y(gen);                              // Sample from the normal distribution of y
+    particle.theta  = dist_theta(gen);                          // Sample from the normal distribution of theta
+    particle.weight = 1;                                        // Initialize all weights to 1
+ 
+    particles.push_back(particle);                              // Vector of all the particles created
     
     //std::cout << "Sample " << i + 1 << " " << particle.x << " " << particle.y << " " << particle.theta << std::endl;
   }
   
-  is_initialized = true;                                   // Flag to indicate that the step of initialization is finished
+  is_initialized = true;                                        // Flag to indicate that the step of initialization is finished
   return;
 }
 
@@ -97,7 +97,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
   
   for (size_t i = 0; i < particles.size(); i++)                 
   {                                                             
-    if(fabs(yaw_rate) > 0.0001)                                 // Absolute yaw rate is not equal to zero
+    if(fabs(yaw_rate) > 0.00001)                                // Absolute yaw rate is not equal to zero
     {
       particles[i].x     += (velocity / yaw_rate) * (sin(particles[i].theta + yaw_rate * delta_t) - sin(particles[i].theta));
       particles[i].y     += (velocity / yaw_rate) * (cos(particles[i].theta) - cos(particles[i].theta + yaw_rate * delta_t));
@@ -195,11 +195,11 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
   
   double x_obs;      // The x coordinate for the landmark observation
   double y_obs;      // The y coordinate for the landmark observation
-                     
+  
   double x_part;     // The x coordinate for the particle
   double y_part;     // The y coordinate for the particle
   double theta;      // The theta orientation of the particle
-                     
+  
   double x_map;      // The x transform to map coordinate for the landmark observation
   double y_map;      // The y transform to map coordinate for the landmark observation
   
