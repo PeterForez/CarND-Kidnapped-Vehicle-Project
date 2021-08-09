@@ -136,6 +136,7 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted, vector<Landm
   for (size_t i = 0; i < observations.size(); i++)                                           // Loop over the Observations
   {                                                                                          
     double min_distance = std::numeric_limits<double>::max();                                // Initialize with the maximum value of double
+    observations[i].id = -1;
     for (size_t j = 0; j < predicted.size(); j++)                                            // Loop over the Predictions    
     {                                                                                        
       double distance;                                                                       
@@ -145,6 +146,14 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted, vector<Landm
         min_distance = distance;                                                             
         observations[i].id = predicted[j].id;                                                // Associating the observation to landmark id
       }
+    }
+    if (observations[i].id == -1)
+    {
+      std::cout << "Observation not associated" << std::endl;
+    }
+    else
+    {
+      std::cout << "Observation associated" << std::endl;
     }
   }
 }
@@ -244,9 +253,9 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
     vector<LandmarkObs> transformed_observations;
     for (size_t j = 0; j < observations.size(); j++)
     {
-      id    = observations[i].id;
-      x_obs = observations[i].x;
-      y_obs = observations[i].y;
+      id    = observations[j].id;
+      x_obs = observations[j].x;
+      y_obs = observations[j].y;
       
       x_map = x_part + (cos(theta) * x_obs) - (sin(theta) * y_obs);
       y_map = y_part + (sin(theta) * x_obs) + (cos(theta) * y_obs);
@@ -275,7 +284,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       }
       double w = multiv_prob(sig_x, sig_y, x_obs, y_obs, mu_x, mu_y);
       
-      if (w == 0)  //Prevent dividing by zero
+      if (w < EPS)  //Prevent dividing by zero
       {
         particles[i].weight *= EPS;
       }
@@ -299,12 +308,12 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
   */
   
   
-  /* 
+   
   // Normalize the weight
   for (size_t i = 0; i < particles.size(); i++)
   {
     particles[i].weight /= weight_total;
-  }   */
+  }   
 }
 
 void ParticleFilter::resample() 
