@@ -98,8 +98,8 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
   for (size_t i = 0; i < particles.size(); i++)                 
   {
     double theta = particles[i].theta;
-    //if(fabs(yaw_rate) != 0.0)
-    if(fabs(yaw_rate) > 0.00001)                                // Absolute yaw rate is not equal to zero
+    if(fabs(yaw_rate) != 0.0)
+    //if(fabs(yaw_rate) > 0.00001)                                // Absolute yaw rate is not equal to zero
     {
       particles[i].x     += (velocity / yaw_rate) * (sin(theta + yaw_rate * delta_t) - sin(theta));
       particles[i].y     += (velocity / yaw_rate) * (cos(theta) - cos(theta + yaw_rate * delta_t));
@@ -274,10 +274,10 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       particles[i].weight *= multiv_prob(sig_x, sig_y, x_obs, y_obs, mu_x, mu_y);
     }  
     
-    if (particles[i].weight < 0.00001)
-    {
-      particles[i].weight = 0.00001;
-    }
+    //if (particles[i].weight < 0.00001)
+    //{
+    //  particles[i].weight = 0.00001;
+    //}
     weight_total += particles[i].weight;
   }
   /*
