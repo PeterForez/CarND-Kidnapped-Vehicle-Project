@@ -45,7 +45,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[])
     return;
   }
   
-  num_particles = 100;                                          // Set the number of particles
+  num_particles = 200;                                          // Set the number of particles
   std::cout << "num_particles " << num_particles << std::endl;
   
   double std_x     = std[0];                                    // Standard deviations for x
@@ -274,20 +274,18 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       particles[i].weight *= multiv_prob(sig_x, sig_y, x_obs, y_obs, mu_x, mu_y);
     }  
     
-    if (particles[i].weight < 0.00001)
+    if (particles[i].weight < 0.0001)
     {
-      particles[i].weight = 0.00001;
+      particles[i].weight = 0.0001;
     }
     weight_total += particles[i].weight;
   }
   
   // Normalize the weight
-  /* 
   for (size_t i = 0; i < particles.size(); i++)
   {
     particles[i].weight += particles[i].weight/weight_total;
   }
-     */
 }
 
 void ParticleFilter::resample() 
