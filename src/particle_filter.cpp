@@ -21,6 +21,8 @@
 using std::string;
 using std::vector;
 
+std::default_random_engine gen;                               // This is a random number engine class that generates pseudo-random numbers.
+
 void ParticleFilter::init(double x, double y, double theta, double std[]) 
 {
   /**
@@ -54,7 +56,6 @@ void ParticleFilter::init(double x, double y, double theta, double std[])
   std::normal_distribution<double> dist_y(y, std_y);            // Create normal distributions for y
   std::normal_distribution<double> dist_theta(theta, std_theta);// Create normal distributions for theta
   
-  std::default_random_engine gen;                               // This is a random number engine class that generates pseudo-random numbers.
   Particle particle;
   for (int i = 0; i < num_particles; ++i) 
   {
@@ -62,7 +63,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[])
     particle.x      = dist_x(gen);                              // Sample from the normal distribution of x
     particle.y      = dist_y(gen);                              // Sample from the normal distribution of y
     particle.theta  = dist_theta(gen);                          // Sample from the normal distribution of theta
-    particle.weight = 1;                                        // Initialize all weights to 1
+    particle.weight = 1.0;                                      // Initialize all weights to 1
  
     particles.push_back(particle);                              // Vector of all the particles created
     
@@ -85,28 +86,28 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
   
   //std::cout << "Step: ParticleFilter::prediction " << std::endl;
   
-  double std_x     = std_pos[0];                                // Standard deviations for x
-  double std_y     = std_pos[1];                                // Standard deviations for y
-  double std_theta = std_pos[2];                                // Standard deviations for theta
+  double std_x     = std_pos[0];                                // Standard deviations for x noise
+  double std_y     = std_pos[1];                                // Standard deviations for y noise
+  double std_theta = std_pos[2];                                // Standard deviations for theta noise
   
   std::normal_distribution<double> dist_x(0, std_x);            // Create normal distributions for x with zero mean
   std::normal_distribution<double> dist_y(0, std_y);            // Create normal distributions for y with zero mean
   std::normal_distribution<double> dist_theta(0, std_theta);    // Create normal distributions for theta with zero mean
   
-  std::default_random_engine gen;                               // This is a random number engine class that generates pseudo-random numbers.
   
   for (size_t i = 0; i < particles.size(); i++)                 
-  {                                                             
+  {
+    double theta = particles[i].theta;
     if(fabs(yaw_rate) > 0.000001)                                // Absolute yaw rate is not equal to zero
     {
-      particles[i].x     += (velocity / yaw_rate) * (sin(particles[i].theta + yaw_rate * delta_t) - sin(particles[i].theta));
-      particles[i].y     += (velocity / yaw_rate) * (cos(particles[i].theta) - cos(particles[i].theta + yaw_rate * delta_t));
+      particles[i].x     += (velocity / yaw_rate) * (sin(theta + yaw_rate * delta_t) - sin(theta));
+      particles[i].y     += (velocity / yaw_rate) * (cos(theta) - cos(theta + yaw_rate * delta_t));
       particles[i].theta += yaw_rate * delta_t;
     }
     else                                                        // Yaw rate is equal to zero
     {
-      particles[i].x     += velocity * delta_t * cos(particles[i].theta);
-      particles[i].y     += velocity * delta_t * sin(particles[i].theta);
+      particles[i].x     += velocity * delta_t * cos(theta);
+      particles[i].y     += velocity * delta_t * sin(theta);
     }
     // Adding Noise
     particles[i].x       += dist_x(gen);                        // Sample from the normal distribution of x
@@ -137,7 +138,6 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted, vector<Landm
     {                                                                                        
       double distance;                                                                       
       distance = dist(observations[i].x, observations[i].y, predicted[j].x, predicted[j].y); // Function in "helper_functions.h"
-      //observations[i].id = -1;                                                               // Initialize the observation id
       if (distance < min_distance)                                                           // Check the minimum distance
       {                                                                                      
         min_distance = distance;                                                             
@@ -306,9 +306,6 @@ void ParticleFilter::resample()
   
   vector<Particle> particles_sampled;
   int N = particles.size();
-  
-  std::random_device rd;  //Will be used to obtain a seed for the random number engine
-  std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
   
   std::uniform_int_distribution<int>     index_dist(0,N-1);
   std::uniform_real_distribution<double> beta_dist(0.0, weight_max);
