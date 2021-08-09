@@ -289,10 +289,10 @@ void ParticleFilter::resample()
   // Maximum and Total Weight
   double weight_max = std::numeric_limits<double>::min(); 
   double weight_total = 0; 
-  vector<double> weights;
+  //vector<double> weights;
   for (size_t i = 0; i < particles.size(); i++)
   {
-    weights.push_back(particles[i].weight);
+    //weights.push_back(particles[i].weight);
     weight_total += particles[i].weight;
     /* 
     if(weight_max < particles[i].weight)
