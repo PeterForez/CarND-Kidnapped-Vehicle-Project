@@ -97,7 +97,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
   
   for (size_t i = 0; i < particles.size(); i++)                 
   {                                                             
-    if(fabs(yaw_rate) > 0.00001)                                // Absolute yaw rate is not equal to zero
+    if(fabs(yaw_rate) > 0.0001)                                // Absolute yaw rate is not equal to zero
     {
       particles[i].x     += (velocity / yaw_rate) * (sin(particles[i].theta + yaw_rate * delta_t) - sin(particles[i].theta));
       particles[i].y     += (velocity / yaw_rate) * (cos(particles[i].theta) - cos(particles[i].theta + yaw_rate * delta_t));
@@ -137,7 +137,7 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted, vector<Landm
     {                                                                                        
       double distance;                                                                       
       distance = dist(observations[i].x, observations[i].y, predicted[j].x, predicted[j].y); // Function in "helper_functions.h"
-      observations[i].id = -1;                                                               // Initialize the observation id
+      //observations[i].id = -1;                                                               // Initialize the observation id
       if (distance < min_distance)                                                           // Check the minimum distance
       {                                                                                      
         min_distance = distance;                                                             
