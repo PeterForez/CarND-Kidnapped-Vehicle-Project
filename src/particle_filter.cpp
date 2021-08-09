@@ -304,7 +304,7 @@ void ParticleFilter::resample()
   std::cout << "weight_total: " << weight_total << std::endl;
   // Normalize the weights
   vector<double> weights;
-  for (size_t i = 0; i < weights.size(); i++)
+  for (size_t i = 0; i < particles.size(); i++)
   {
     weights.push_back(particles[i].weight/weight_total);
   }
