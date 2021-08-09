@@ -38,6 +38,11 @@ void ParticleFilter::init(double x, double y, double theta, double std[])
   
   //std::cout << "Step: ParticleFilter::init " << std::endl;
   
+  if(is_initialized)
+  {
+    return;
+  }
+  
   num_particles = 100;                                     // Set the number of particles
   std::cout << "num_particles " << num_particles << std::endl;
   
@@ -80,33 +85,33 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
   
   //std::cout << "Step: ParticleFilter::prediction " << std::endl;
   
-  double std_x     = std_pos[0];                           // Standard deviations for x
-  double std_y     = std_pos[1];                           // Standard deviations for y
-  double std_theta = std_pos[2];                           // Standard deviations for theta
+  double std_x     = std_pos[0];                                // Standard deviations for x
+  double std_y     = std_pos[1];                                // Standard deviations for y
+  double std_theta = std_pos[2];                                // Standard deviations for theta
   
   std::normal_distribution<double> dist_x(0, std_x);            // Create normal distributions for x with zero mean
   std::normal_distribution<double> dist_y(0, std_y);            // Create normal distributions for y with zero mean
   std::normal_distribution<double> dist_theta(0, std_theta);    // Create normal distributions for theta with zero mean
   
-  std::default_random_engine gen;                          // This is a random number engine class that generates pseudo-random numbers.
-    
-  for (size_t i = 0; i < particles.size(); i++)
-  {
-    if(fabs(yaw_rate) > 0.0001)                            // Absolute yaw rate is not equal to zero
+  std::default_random_engine gen;                               // This is a random number engine class that generates pseudo-random numbers.
+  
+  for (size_t i = 0; i < particles.size(); i++)                 
+  {                                                             
+    if(fabs(yaw_rate) > 0.0001)                                 // Absolute yaw rate is not equal to zero
     {
       particles[i].x     += (velocity / yaw_rate) * (sin(particles[i].theta + yaw_rate * delta_t) - sin(particles[i].theta));
       particles[i].y     += (velocity / yaw_rate) * (cos(particles[i].theta) - cos(particles[i].theta + yaw_rate * delta_t));
       particles[i].theta += yaw_rate * delta_t;
     }
-    else                                                   // Yaw rate is equal to zero
+    else                                                        // Yaw rate is equal to zero
     {
       particles[i].x     += velocity * delta_t * cos(particles[i].theta);
       particles[i].y     += velocity * delta_t * sin(particles[i].theta);
     }
     // Adding Noise
-    particles[i].x       += dist_x(gen);                   // Sample from the normal distribution of x
-    particles[i].y       += dist_y(gen);                   // Sample from the normal distribution of y
-    particles[i].theta   += dist_theta(gen);               // Sample from the normal distribution of theta
+    particles[i].x       += dist_x(gen);                        // Sample from the normal distribution of x
+    particles[i].y       += dist_y(gen);                        // Sample from the normal distribution of y
+    particles[i].theta   += dist_theta(gen);                    // Sample from the normal distribution of theta
   }
 }
 
@@ -127,7 +132,7 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted, vector<Landm
   
   for (size_t i = 0; i < observations.size(); i++)                                           // Loop over the Observations
   {                                                                                          
-    double min_distance = std::numeric_limits<double>::max();                                     // Initialize with the maximum value of double
+    double min_distance = std::numeric_limits<double>::max();                                // Initialize with the maximum value of double
     for (size_t j = 0; j < predicted.size(); j++)                                            // Loop over the Predictions    
     {                                                                                        
       double distance;                                                                       
