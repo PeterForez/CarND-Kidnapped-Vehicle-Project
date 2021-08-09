@@ -269,9 +269,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
         }
       }
       particles[i].weight *= multiv_prob(sig_x, sig_y, x_obs, y_obs, mu_x, mu_y);
-    }  
-    
-    
+    }     
   }
 }
 
@@ -303,13 +301,14 @@ void ParticleFilter::resample()
     }
      */
   }
-  /*
+  
   // Normalize the weights
+  vector<double> weights;
   for (size_t i = 0; i < weights.size(); i++)
   {
-    weights[i] = weights[i]/weight_total;
+    weights.push_back(particles[i].weight/weight_total);
   }
-  */
+  
   
   
   weight_max = *max_element(weights.begin(), weights.end()); //https://www.includehelp.com/stl/find-the-maximum-largest-element-of-a-vector.aspx
