@@ -22,7 +22,7 @@ using std::string;
 using std::vector;
 
 std::default_random_engine gen;                               // This is a random number engine class that generates pseudo-random numbers.
-#define EPS 0.00001
+#define EPS 0.000001
 
 void ParticleFilter::init(double x, double y, double theta, double std[]) 
 {
@@ -41,12 +41,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[])
   
   //std::cout << "Step: ParticleFilter::init " << std::endl;
   
-  if(is_initialized)
-  {
-    return;
-  }
-  
-  num_particles = 100;                                          // Set the number of particles
+  num_particles = 50;                                          // Set the number of particles
   std::cout << "num_particles " << num_particles << std::endl;
   
   double std_x     = std[0];                                    // Standard deviations for x
@@ -147,14 +142,14 @@ void ParticleFilter::dataAssociation(vector<LandmarkObs> predicted, vector<Landm
         observations[i].id = predicted[j].id;                                                // Associating the observation to landmark id
       }
     }
-    if (observations[i].id == -1)
-    {
-      std::cout << "Observation not associated" << std::endl;
-    }
-    else
-    {
-      std::cout << "Observation associated" << std::endl;
-    }
+    //if (observations[i].id == -1)
+    //{
+    //  std::cout << "Observation not associated" << std::endl;
+    //}
+    //if (observations[i].id != -1)
+    //{
+    //  std::cout << "Observation associated" << std::endl;
+    //}
   }
 }
 
@@ -225,7 +220,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
   double sig_x = std_landmark[0];
   double sig_y = std_landmark[1];
   
-  double distance;  
   double weight_total = 0; 
   for (size_t i = 0; i < particles.size(); i++)
   {
@@ -241,8 +235,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       x_landmark = map_landmarks.landmark_list[j].x_f; 
       y_landmark = map_landmarks.landmark_list[j].y_f; 
       
-      distance   = dist(x_part, x_landmark, y_part, y_landmark);
-      if((fabs(x_part - x_landmark) <= sensor_range) && (fabs(y_part - y_landmark) <= sensor_range))
+      if((fabs(x_part - x_landmark) <= sensor_range) && (fabs(y_part - y_landmark) <= sensor_range)) // Landmark within the sensor range
+      //double distance   = dist(x_part, x_landmark, y_part, y_landmark);
       //if (distance <= sensor_range) // Landmark within the sensor range
       {
         landmarks_sensor_range.push_back(LandmarkObs{id, x_landmark, y_landmark}); // Prediction
@@ -282,19 +276,22 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
           break;
         }
       }
-      double w = multiv_prob(sig_x, sig_y, x_obs, y_obs, mu_x, mu_y);
       
-      if (w < EPS)  //Prevent dividing by zero
-      {
-        particles[i].weight *= EPS;
-      }
-      else
-      {
-        particles[i].weight *= w;
-      }
+      particles[i].weight *= multiv_prob(sig_x, sig_y, x_obs, y_obs, mu_x, mu_y);
+      //double w = multiv_prob(sig_x, sig_y, x_obs, y_obs, mu_x, mu_y);
+      //if (w < EPS)  //Prevent dividing by zero
+      //{
+      //  particles[i].weight *= EPS;
+      //  std::cout << "w < EPS" << std::endl;
+      //}
+      //else
+      //{
+      //  particles[i].weight *= w;
+      //}
     }  
     weight_total += particles[i].weight;
   }
+  
   /*
   std::cout << "weight_total_1 " << weight_total << std::endl;
   
@@ -306,8 +303,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
   weight_total = accumulate(weights.begin(),weights.end(),0); //https://www.tutorialspoint.com/how-to-sum-up-elements-of-a-cplusplus-vector
   std::cout << "weight_total_2 " << weight_total << std::endl;
   */
-  
-  
    
   // Normalize the weight
   for (size_t i = 0; i < particles.size(); i++)
