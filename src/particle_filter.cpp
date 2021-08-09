@@ -272,11 +272,13 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
     }    
     weight_total += particles[i].weight;
   }
+  /*
   // Normalize the weight
   for (size_t i = 0; i < particles.size(); i++)
   {
     particles[i].weight += particles[i].weight/weight_total;
   }
+  */
 }
 
 void ParticleFilter::resample() 
