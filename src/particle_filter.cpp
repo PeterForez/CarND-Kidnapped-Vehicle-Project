@@ -45,7 +45,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[])
     return;
   }
   
-  num_particles = 100;                                          // Set the number of particles
+  num_particles = 150;                                          // Set the number of particles
   std::cout << "num_particles " << num_particles << std::endl;
   
   double std_x     = std[0];                                    // Standard deviations for x
@@ -224,7 +224,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
     
     // Find Landmarks within the sensor range of the particle
     vector<LandmarkObs> landmarks_sensor_range;
-    for (size_t j = 1; j < map_landmarks.landmark_list.size(); j++)
+    for (size_t j = 0; j < map_landmarks.landmark_list.size(); j++)
     {
       id         = map_landmarks.landmark_list[j].id_i; 
       x_landmark = map_landmarks.landmark_list[j].x_f; 
@@ -248,6 +248,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       x_map = x_part + (cos(theta) * x_obs) - (sin(theta) * y_obs);
       y_map = y_part + (sin(theta) * x_obs) + (cos(theta) * y_obs);
       transformed_observations.push_back(LandmarkObs{id, x_map, y_map}); 
+      //std::cout << "OBS:" << j << ": Before (" << x_obs << ", " << y_obs << ") After (" << x_map << ", " << y_map << ")" << std::endl;
     }
     
     // Find the predicted measurement that is closest to each observed measurement and assign the observed measurement to this particular landmark.
@@ -302,7 +303,7 @@ void ParticleFilter::resample()
   
   double weight_max = *max_element(weights.begin(), weights.end()); //https://www.includehelp.com/stl/find-the-maximum-largest-element-of-a-vector.aspx
   
-  std::cout << "weight_max " << weight_max << std::endl;
+  //std::cout << "weight_max " << weight_max << std::endl;
   
   vector<Particle> particles_sampled;
   int N = particles.size();
