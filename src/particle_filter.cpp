@@ -22,6 +22,7 @@ using std::string;
 using std::vector;
 
 std::default_random_engine gen;                               // This is a random number engine class that generates pseudo-random numbers.
+#define EPS 0.000001
 
 void ParticleFilter::init(double x, double y, double theta, double std[]) 
 {
@@ -45,7 +46,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[])
     return;
   }
   
-  num_particles = 100;                                          // Set the number of particles
+  num_particles = 500;                                          // Set the number of particles
   std::cout << "num_particles " << num_particles << std::endl;
   
   double std_x     = std[0];                                    // Standard deviations for x
@@ -67,7 +68,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[])
  
     particles.push_back(particle);                              // Vector of all the particles created
     
-    //std::cout << "Sample " << i + 1 << " " << particle.x << " " << particle.y << " " << particle.theta << std::endl;
+    std::cout << "Sample " << i + 1 << " " << particle.x << " " << particle.y << " " << particle.theta << std::endl;
   }
   
   is_initialized = true;                                        // Flag to indicate that the step of initialization is finished
@@ -98,8 +99,8 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
   for (size_t i = 0; i < particles.size(); i++)                 
   {
     double theta = particles[i].theta;
-    if(fabs(yaw_rate) != 0.0)
-    //if(fabs(yaw_rate) > 0.00001)                                // Absolute yaw rate is not equal to zero
+    //if(fabs(yaw_rate) != 0.0)
+    if(fabs(yaw_rate) > EPS)                                   // Absolute yaw rate is not equal to zero
     {
       particles[i].x     += (velocity / yaw_rate) * (sin(theta + yaw_rate * delta_t) - sin(theta));
       particles[i].y     += (velocity / yaw_rate) * (cos(theta) - cos(theta + yaw_rate * delta_t));
@@ -269,15 +270,16 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
         {
           mu_x = landmarks_sensor_range[k].x;
           mu_y = landmarks_sensor_range[k].y;
+          break;
         }
       }
       particles[i].weight *= multiv_prob(sig_x, sig_y, x_obs, y_obs, mu_x, mu_y);
     }  
     
-    //if (particles[i].weight < 0.00001)
-    //{
-    //  particles[i].weight = 0.00001;
-    //}
+    if (particles[i].weight < EPS)  //Prevent dividing by zero
+    {
+      particles[i].weight = EPS;
+    }
     weight_total += particles[i].weight;
   }
   /*
@@ -293,13 +295,12 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
   */
   
   
-  /*
+  /* 
   // Normalize the weight
   for (size_t i = 0; i < particles.size(); i++)
   {
-    particles[i].weight += particles[i].weight/weight_total;
-  }
-  */
+    particles[i].weight /= weight_total;
+  }   */
 }
 
 void ParticleFilter::resample() 
@@ -330,14 +331,14 @@ void ParticleFilter::resample()
   int N = particles.size();
   
   std::uniform_int_distribution<int>     index_dist(0,N-1);
-  std::uniform_real_distribution<double> beta_dist(0.0, weight_max);
+  std::uniform_real_distribution<double> beta_dist(0.0, 2.0 * weight_max);
   
   int    index = index_dist(gen);
   double beta = 0.0;  
   
   for (int i = 0; i < N; i++)
   {
-    beta += beta_dist(gen) * 2.0 ;
+    beta += beta_dist(gen);
     while (beta > weights[index])
     {
       beta -= weights[index];
