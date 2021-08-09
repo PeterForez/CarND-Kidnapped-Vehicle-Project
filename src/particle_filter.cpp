@@ -298,13 +298,13 @@ void ParticleFilter::resample()
     }
      */
   }
-  
+  /*
   // Normalize the weights
   for (size_t i = 0; i < weights.size(); i++)
   {
     weights[i] = weights[i]/weight_total;
   }
-  
+  */
   
   
   weight_max = *max_element(weights.begin(), weights.end()); //https://www.includehelp.com/stl/find-the-maximum-largest-element-of-a-vector.aspx
