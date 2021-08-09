@@ -215,7 +215,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
   double sig_y = std_landmark[1];
   
   double distance;  
-
+  double weight_total = 0; 
   for (size_t i = 0; i < particles.size(); i++)
   {
     x_part = particles[i].x;
@@ -269,7 +269,13 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
         }
       }
       particles[i].weight *= multiv_prob(sig_x, sig_y, x_obs, y_obs, mu_x, mu_y);
-    }     
+    }    
+    weight_total += particles[i].weight;
+  }
+  // Normalize the weight
+  for (size_t i = 0; i < particles.size(); i++)
+  {
+    particles[i].weight += particles[i].weight/weight_total;
   }
 }
 
@@ -286,31 +292,13 @@ void ParticleFilter::resample()
   
   //std::cout << "Step: ParticleFilter::resample " << std::endl;
   
-  // Find the total weights
-  double weight_total = 0; 
-  /*
-  for (size_t i = 0; i < particles.size(); i++)
-  {
-    weight_total += particles[i].weight;
-  }
-  */
-  
-  // Normalize the weights
-  double weight_max = std::numeric_limits<double>::min(); 
   vector<double> weights;
-  weight_total = 1;
   for (size_t i = 0; i < particles.size(); i++)
   {
-    weights.push_back(particles[i].weight/weight_total);
-    /* 
-    if(weight_max < particles[i].weight/weight_total)
-    {
-      weight_max = particles[i].weight/weight_total;
-    }
-    */
+    weights.push_back(particles[i].weight);
   }
   
-  weight_max = *max_element(weights.begin(), weights.end()); //https://www.includehelp.com/stl/find-the-maximum-largest-element-of-a-vector.aspx
+  double weight_max = *max_element(weights.begin(), weights.end()); //https://www.includehelp.com/stl/find-the-maximum-largest-element-of-a-vector.aspx
   
   std::cout << "weight_max " << weight_max << std::endl;
   
