@@ -45,7 +45,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[])
     return;
   }
   
-  num_particles = 150;                                          // Set the number of particles
+  num_particles = 100;                                          // Set the number of particles
   std::cout << "num_particles " << num_particles << std::endl;
   
   double std_x     = std[0];                                    // Standard deviations for x
@@ -98,7 +98,8 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
   for (size_t i = 0; i < particles.size(); i++)                 
   {
     double theta = particles[i].theta;
-    if(fabs(yaw_rate) > 0.000001)                                // Absolute yaw rate is not equal to zero
+    //if(fabs(yaw_rate) != 0.0)
+    if(fabs(yaw_rate) > 0.00001)                                // Absolute yaw rate is not equal to zero
     {
       particles[i].x     += (velocity / yaw_rate) * (sin(theta + yaw_rate * delta_t) - sin(theta));
       particles[i].y     += (velocity / yaw_rate) * (cos(theta) - cos(theta + yaw_rate * delta_t));
@@ -231,7 +232,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       y_landmark = map_landmarks.landmark_list[j].y_f; 
       
       distance   = dist(x_part, x_landmark, y_part, y_landmark);
-      if (distance <= sensor_range) // Landmark within the sensor range
+      if((fabs(x_part - x_landmark) < sensor_range) && (fabs(y_part - y_landmark) < sensor_range))
+      //if (distance <= sensor_range) // Landmark within the sensor range
       {
         landmarks_sensor_range.push_back(LandmarkObs{id, x_landmark, y_landmark}); // Prediction
       }
@@ -270,16 +272,22 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
         }
       }
       particles[i].weight *= multiv_prob(sig_x, sig_y, x_obs, y_obs, mu_x, mu_y);
-    }    
+    }  
+    
+    if (particles[i].weight < 0.00001)
+    {
+      particles[i].weight = 0.00001;
+    }
     weight_total += particles[i].weight;
   }
-  /*
+  
   // Normalize the weight
+  /* 
   for (size_t i = 0; i < particles.size(); i++)
   {
     particles[i].weight += particles[i].weight/weight_total;
   }
-  */
+     */
 }
 
 void ParticleFilter::resample() 
