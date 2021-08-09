@@ -286,31 +286,28 @@ void ParticleFilter::resample()
   
   //std::cout << "Step: ParticleFilter::resample " << std::endl;
   
-  // Maximum and Total Weight
-  double weight_max = std::numeric_limits<double>::min(); 
+  // Find the total weights
   double weight_total = 0; 
-  //vector<double> weights;
   for (size_t i = 0; i < particles.size(); i++)
   {
-    //weights.push_back(particles[i].weight);
     weight_total += particles[i].weight;
-    /* 
-    if(weight_max < particles[i].weight)
-    {
-      weight_max = particles[i].weight;
-    }
-     */
   }
-  std::cout << "weight_total: " << weight_total << std::endl;
+  
+  
   // Normalize the weights
+  double weight_max = std::numeric_limits<double>::min(); 
   vector<double> weights;
   for (size_t i = 0; i < particles.size(); i++)
   {
     weights.push_back(particles[i].weight/weight_total);
+    /* 
+    if(weight_max < particles[i].weight/weight_total)
+    {
+      weight_max = particles[i].weight/weight_total;
+    }
+    */
   }
-  
-  
-  
+    
   weight_max = *max_element(weights.begin(), weights.end()); //https://www.includehelp.com/stl/find-the-maximum-largest-element-of-a-vector.aspx
   
   std::cout << "weight_max " << weight_max << std::endl;
