@@ -45,7 +45,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[])
     return;
   }
   
-  num_particles = 200;                                          // Set the number of particles
+  num_particles = 100;                                          // Set the number of particles
   std::cout << "num_particles " << num_particles << std::endl;
   
   double std_x     = std[0];                                    // Standard deviations for x
@@ -232,14 +232,14 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       y_landmark = map_landmarks.landmark_list[j].y_f; 
       
       distance   = dist(x_part, x_landmark, y_part, y_landmark);
-      if((fabs(x_part - x_landmark) < sensor_range) && (fabs(y_part - y_landmark) < sensor_range))
+      if((fabs(x_part - x_landmark) <= sensor_range) && (fabs(y_part - y_landmark) <= sensor_range))
       //if (distance <= sensor_range) // Landmark within the sensor range
       {
         landmarks_sensor_range.push_back(LandmarkObs{id, x_landmark, y_landmark}); // Prediction
       }
     }
     
-    // Transform the observation from Vehicile to MAP coordinates    
+    // Transform the observation from vehicile to MAP coordinates    
     vector<LandmarkObs> transformed_observations;
     for (size_t j = 0; j < observations.size(); j++)
     {
@@ -274,18 +274,32 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       particles[i].weight *= multiv_prob(sig_x, sig_y, x_obs, y_obs, mu_x, mu_y);
     }  
     
-    if (particles[i].weight < 0.0001)
+    if (particles[i].weight < 0.00001)
     {
-      particles[i].weight = 0.0001;
+      particles[i].weight = 0.00001;
     }
     weight_total += particles[i].weight;
   }
+  /*
+  std::cout << "weight_total_1 " << weight_total << std::endl;
   
+  vector<double> weights;
+  for (size_t i = 0; i < particles.size(); i++)
+  {
+    weights.push_back(particles[i].weight);
+  }
+  weight_total = accumulate(weights.begin(),weights.end(),0); //https://www.tutorialspoint.com/how-to-sum-up-elements-of-a-cplusplus-vector
+  std::cout << "weight_total_2 " << weight_total << std::endl;
+  */
+  
+  
+  /*
   // Normalize the weight
   for (size_t i = 0; i < particles.size(); i++)
   {
     particles[i].weight += particles[i].weight/weight_total;
   }
+  */
 }
 
 void ParticleFilter::resample() 
@@ -301,6 +315,7 @@ void ParticleFilter::resample()
   
   //std::cout << "Step: ParticleFilter::resample " << std::endl;
   
+  #if 0
   vector<double> weights;
   for (size_t i = 0; i < particles.size(); i++)
   {
@@ -331,6 +346,26 @@ void ParticleFilter::resample()
     particles_sampled.push_back(particles[index]);
   } 
   particles = particles_sampled;
+  
+  
+  #else
+  vector<double> weights;
+  for (size_t i = 0; i < particles.size(); i++)
+  {
+    weights.push_back(particles[i].weight);
+  }
+  
+  std::discrete_distribution<> index_dist(weights.begin(), weights.end());
+  
+  vector<Particle> particles_sampled;
+  int index;
+  for (size_t i = 0; i < particles.size(); i++)
+  {
+    index = index_dist(gen);
+    particles_sampled.push_back(particles[index]);
+  } 
+  particles = particles_sampled;
+  #endif
 }
 
 void ParticleFilter::SetAssociations(Particle& particle, 
