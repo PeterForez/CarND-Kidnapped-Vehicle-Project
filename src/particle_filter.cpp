@@ -288,15 +288,17 @@ void ParticleFilter::resample()
   
   // Find the total weights
   double weight_total = 0; 
+  /*
   for (size_t i = 0; i < particles.size(); i++)
   {
     weight_total += particles[i].weight;
   }
-  
+  */
   
   // Normalize the weights
   double weight_max = std::numeric_limits<double>::min(); 
   vector<double> weights;
+  weight_total = 1
   for (size_t i = 0; i < particles.size(); i++)
   {
     weights.push_back(particles[i].weight/weight_total);
@@ -307,7 +309,7 @@ void ParticleFilter::resample()
     }
     */
   }
-    
+  
   weight_max = *max_element(weights.begin(), weights.end()); //https://www.includehelp.com/stl/find-the-maximum-largest-element-of-a-vector.aspx
   
   std::cout << "weight_max " << weight_max << std::endl;
